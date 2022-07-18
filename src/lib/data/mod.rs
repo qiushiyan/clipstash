@@ -6,6 +6,7 @@ use thiserror::Error;
 use uuid::Uuid;
 
 pub mod model;
+pub mod query;
 
 #[derive(Debug, Error)]
 pub enum DataError {

@@ -2,19 +2,20 @@ use crate::data::DatabaseId;
 use crate::domain::clip;
 use crate::{ClipError, ShortCode, Time};
 use chrono::NaiveDateTime;
+use derive_more::From;
 use std::convert::TryFrom;
 use std::str::FromStr;
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct Clip {
-    pub id: String,
-    pub title: Option<String>,
-    pub content: String,
-    pub shortcode: String,
-    pub created_at: NaiveDateTime,
-    pub expires_at: Option<NaiveDateTime>,
-    pub password: Option<String>,
-    pub hits: u64,
+    pub(in crate::data) id: String,
+    pub(in crate::data) title: Option<String>,
+    pub(in crate::data) content: String,
+    pub(in crate::data) shortcode: String,
+    pub(in crate::data) created_at: NaiveDateTime,
+    pub(in crate::data) expires_at: Option<NaiveDateTime>,
+    pub(in crate::data) password: Option<String>,
+    pub(in crate::data) hits: i64,
 }
 
 impl TryFrom<Clip> for crate::domain::Clip {
@@ -34,4 +35,35 @@ impl TryFrom<Clip> for crate::domain::Clip {
             hits: field::Hits::new(clip.hits),
         })
     }
+}
+
+#[derive(From)]
+pub struct GetClip {
+    pub(in crate::data) shortcode: String,
+}
+
+impl From<ShortCode> for GetClip {
+    fn from(shortcode: ShortCode) -> Self {
+        Self {
+            shortcode: shortcode.into_inner(),
+        }
+    }
+}
+
+pub struct NewClip {
+    pub(in crate::data) id: String,
+    pub(in crate::data) title: Option<String>,
+    pub(in crate::data) content: String,
+    pub(in crate::data) password: Option<String>,
+    pub(in crate::data) shortcode: String,
+    pub(in crate::data) created_at: i64,
+    pub(in crate::data) expires_at: Option<i64>,
+}
+
+pub struct UpdateClip {
+    pub(in crate::data) title: Option<String>,
+    pub(in crate::data) content: String,
+    pub(in crate::data) password: Option<String>,
+    pub(in crate::data) shortcode: String,
+    pub(in crate::data) expires_at: Option<i64>,
 }
