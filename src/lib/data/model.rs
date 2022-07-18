@@ -1,7 +1,7 @@
 use crate::data::DatabaseId;
 use crate::domain::clip;
 use crate::{ClipError, ShortCode, Time};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
 use derive_more::From;
 use std::convert::TryFrom;
 use std::str::FromStr;
@@ -50,6 +50,14 @@ impl From<ShortCode> for GetClip {
     }
 }
 
+impl From<crate::service::ask::GetClip> for GetClip {
+    fn from(req: crate::service::ask::GetClip) -> Self {
+        Self {
+            shortcode: req.shortcode.into_inner(),
+        }
+    }
+}
+
 pub struct NewClip {
     pub(in crate::data) id: String,
     pub(in crate::data) title: Option<String>,
@@ -60,10 +68,36 @@ pub struct NewClip {
     pub(in crate::data) expires_at: Option<i64>,
 }
 
+impl From<crate::service::ask::NewClip> for NewClip {
+    fn from(req: crate::service::ask::NewClip) -> Self {
+        Self {
+            id: DatabaseId::new().into(),
+            title: req.title.into_inner(),
+            content: req.content.into_inner(),
+            password: req.password.into_inner(),
+            shortcode: ShortCode::default().into(),
+            created_at: Utc::now().timestamp(),
+            expires_at: req.expires_at.into_inner().map(|time| time.to_timestamp()),
+        }
+    }
+}
+
 pub struct UpdateClip {
     pub(in crate::data) title: Option<String>,
     pub(in crate::data) content: String,
     pub(in crate::data) password: Option<String>,
     pub(in crate::data) shortcode: String,
     pub(in crate::data) expires_at: Option<i64>,
+}
+
+impl From<crate::service::ask::UpdateClip> for UpdateClip {
+    fn from(req: crate::service::ask::UpdateClip) -> Self {
+        Self {
+            title: req.title.into_inner(),
+            content: req.content.into_inner(),
+            password: req.password.into_inner(),
+            shortcode: req.shortcode.into_inner(),
+            expires_at: req.expires_at.into_inner().map(|time| time.to_timestamp()),
+        }
+    }
 }

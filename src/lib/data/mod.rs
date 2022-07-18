@@ -45,11 +45,15 @@ pub struct DatabaseId(Uuid);
 
 impl DatabaseId {
     pub fn new() -> Self {
-        Uuid::new_v4().into()
+        Self(Uuid::new_v4())
     }
 
     pub fn nil() -> Self {
         Self(Uuid::nil())
+    }
+
+    pub fn into_inner(self) -> String {
+        self.0.to_hyphenated().to_string()
     }
 }
 
@@ -64,5 +68,11 @@ impl FromStr for DatabaseId {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Uuid::parse_str(s)?.into())
+    }
+}
+
+impl From<DatabaseId> for String {
+    fn from(id: DatabaseId) -> Self {
+        format!("{}", id.0)
     }
 }
