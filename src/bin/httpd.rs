@@ -1,4 +1,5 @@
 use clipstash::data::AppDatabase;
+use clipstash::domain::maintenance::Maintenance;
 use clipstash::web::hit_counter::HitCounter;
 use clipstash::web::renderer::Renderer;
 use dotenv::dotenv;
@@ -23,12 +24,14 @@ fn main() {
     let renderer = Renderer::new(opt.template_directory.clone());
 
     let database = rt.block_on(async move { AppDatabase::new(&opt.connection_string).await });
+    let maintenance = Maintenance::spawn(database.get_pool().clone(), handle.clone());
 
     let hit_counter = HitCounter::new(database.get_pool().clone(), handle.clone());
     let config = clipstash::RocketConfig {
         renderer,
         database,
         hit_counter,
+        maintenance,
     };
 
     let _ = rt.block_on(async move {

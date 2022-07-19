@@ -86,7 +86,6 @@ impl HitCounter {
                 let mut hit_count = hits.lock();
                 let hit_count = hit_count.entry(shortcode).or_insert(0);
                 *hit_count += count;
-                dbg!(hit_count);
             }
         }
         Ok(())

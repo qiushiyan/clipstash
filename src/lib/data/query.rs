@@ -130,3 +130,25 @@ pub async fn delete_expired(pool: &DatabasePool) -> Result<u64> {
             .rows_affected(),
     )
 }
+
+pub mod test_helpers {
+    use crate::data::*;
+    pub fn model_get_clip(shortcode: &str) -> model::GetClip {
+        model::GetClip {
+            shortcode: shortcode.into(),
+        }
+    }
+
+    pub fn model_new_clip(shortcode: &str) -> model::NewClip {
+        use chrono::Utc;
+        model::NewClip {
+            id: DatabaseId::new().into(),
+            title: None,
+            content: format!("content for clip '{}'", shortcode),
+            shortcode: shortcode.into(),
+            created_at: Utc::now().timestamp(),
+            expires_at: None,
+            password: None,
+        }
+    }
+}

@@ -1,5 +1,4 @@
 use crate::data::DatabaseId;
-use crate::domain::clip;
 use crate::{ClipError, ShortCode, Time};
 use chrono::{NaiveDateTime, Utc};
 use derive_more::From;
@@ -10,7 +9,7 @@ use std::str::FromStr;
 pub struct Clip {
     pub(in crate::data) id: String,
     pub(in crate::data) title: Option<String>,
-    pub(in crate::data) content: String,
+    pub content: String, // public for testing
     pub(in crate::data) shortcode: String,
     pub(in crate::data) created_at: NaiveDateTime,
     pub(in crate::data) expires_at: Option<NaiveDateTime>,

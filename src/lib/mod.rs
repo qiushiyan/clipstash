@@ -5,6 +5,7 @@ pub mod service;
 pub mod web;
 
 pub use data::DataError;
+use domain::maintenance::Maintenance;
 pub use service::ServiceError;
 pub use web::hit_counter::HitCounter;
 
@@ -32,4 +33,5 @@ pub struct RocketConfig {
     pub renderer: Renderer<'static>,
     pub database: AppDatabase,
     pub hit_counter: HitCounter,
+    pub maintenance: Maintenance,
 }
