@@ -1,4 +1,10 @@
-# client usage
+# development notes
+
+Create sqlite database
+
+```
+sqlx database setup
+```
 
 Start server
 
