@@ -1,5 +1,6 @@
 use crate::domain::clip::ClipError;
 use derive_more::From;
+use rocket::form::{self, FromFormField, ValueField};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -37,5 +38,12 @@ impl FromStr for Title {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self::new(s.to_owned()))
+    }
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for Title {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        Ok(Title::new(field.value.to_owned()))
     }
 }

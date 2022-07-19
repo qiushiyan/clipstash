@@ -1,5 +1,6 @@
 use crate::domain::time::Time;
 use derive_more::From;
+use rocket::form::{self, FromFormField, ValueField};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -31,6 +32,18 @@ impl FromStr for ExpiresAt {
             Ok(Self(None))
         } else {
             Ok(Self(Some(Time::from_str(s)?)))
+        }
+    }
+}
+
+#[rocket::async_trait]
+impl<'r> FromFormField<'r> for ExpiresAt {
+    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
+        if field.value.trim().is_empty() {
+            Ok(Self(None))
+        } else {
+            Ok(ExpiresAt::from_str(field.value)
+                .map_err(|e| form::Error::validation(format!("{}", e)))?)
         }
     }
 }
