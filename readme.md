@@ -1,5 +1,13 @@
 # client usage
 
+Start server
+
 ```bash
-cargo run --bin client -- --api-key 8mRnWXn97EqWRT6bLr9NZg get fc1c11c3f3
+cargo run --bin http
+```
+
+Use cli
+
+```bash
+cargo run --bin client
 ```
