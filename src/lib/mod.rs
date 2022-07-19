@@ -6,6 +6,7 @@ pub mod web;
 
 pub use data::DataError;
 pub use service::ServiceError;
+pub use web::hit_counter::HitCounter;
 
 use data::AppDatabase;
 pub use domain::clip::field::ShortCode;
@@ -20,7 +21,9 @@ pub fn rocket(config: RocketConfig) -> Rocket<Build> {
     rocket::build()
         .manage::<AppDatabase>(config.database)
         .manage::<Renderer>(config.renderer)
+        .manage::<HitCounter>(config.hit_counter)
         .mount("/", web::http::routes())
+        .mount("/api", web::api::routes())
         .mount("/static", FileServer::from("static"))
         .register("/", web::http::catcher::catchers())
 }

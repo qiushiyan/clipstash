@@ -1,5 +1,6 @@
 use crate::data::{query, DatabasePool, Transaction};
 use crate::service::ask;
+use crate::web::ApiKey;
 use crate::{Clip, ShortCode};
 use std::convert::TryInto;
 
@@ -44,4 +45,22 @@ pub async fn increase_hit_count(
 ) -> Result<(), ServiceError> {
     let _ = query::increment_hit(shortcode, hits, pool).await?;
     Ok(())
+}
+/// Creates a new [`ApiKey`].
+pub async fn generate_api_key(pool: &DatabasePool) -> Result<ApiKey, ServiceError> {
+    let api_key = ApiKey::default();
+    Ok(query::save_api_key(api_key, pool).await?)
+}
+
+/// Revokes an existing [`ApiKey`].
+pub async fn revoke_api_key(
+    api_key: ApiKey,
+    pool: &DatabasePool,
+) -> Result<query::RevocationStatus, ServiceError> {
+    Ok(query::revoke_api_key(api_key, pool).await?)
+}
+
+/// Determines if an [`ApiKey`] is valid.
+pub async fn api_key_is_valid(api_key: ApiKey, pool: &DatabasePool) -> Result<bool, ServiceError> {
+    Ok(query::api_key_is_valid(api_key, pool).await?)
 }

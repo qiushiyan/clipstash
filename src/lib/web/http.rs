@@ -1,16 +1,16 @@
 //! Page routing, errors, and data structures.
 
+use super::api::new_api_key;
+use super::hit_counter::HitCounter;
 use crate::data::AppDatabase;
 use crate::service;
 use crate::service::action;
 use crate::web::PASSWORD_COOKIE;
 use crate::web::{ctx, form, renderer::Renderer, PageError};
 use crate::{ServiceError, ShortCode};
-use reqwest::redirect;
 use rocket::form::{Contextual, Form};
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::content::RawHtml;
-use std::fmt::Debug;
 
 use rocket::response::{status, Redirect};
 use rocket::{uri, State};
@@ -19,6 +19,34 @@ use rocket::{uri, State};
 fn home(renderer: &State<Renderer<'_>>) -> RawHtml<String> {
     let context = ctx::Home::default();
     RawHtml(renderer.render(&context, &[]))
+}
+
+#[rocket::get("/key/new")]
+fn api_key(renderer: &State<Renderer<'_>>) -> RawHtml<String> {
+    let context = ctx::ApiKeyGenerate::default();
+    RawHtml(renderer.render(&context, &[]))
+}
+
+#[rocket::post("/key/new")]
+pub async fn generate_api_key(
+    database: &State<AppDatabase>,
+    renderer: &State<Renderer<'_>>,
+) -> Result<status::Custom<RawHtml<String>>, PageError> {
+    println!("Generating new api key...");
+    match action::generate_api_key(database.get_pool()).await {
+        Ok(api_key) => {
+            println!("Api Key: {}", api_key.to_base64());
+            let context = ctx::ApiKeyGenerate::default();
+            Ok(status::Custom(
+                Status::Ok,
+                RawHtml(renderer.render_with_data(context, ("api_key", api_key.to_base64()), &[])),
+            ))
+        }
+        Err(e) => {
+            dbg!(&e);
+            Err(PageError::InternalError(format!("{}", e)))
+        }
+    }
 }
 
 #[rocket::post("/", data = "<form>")]
@@ -37,10 +65,7 @@ pub async fn new_clip(
         };
 
         match action::new_clip(req, database.get_pool()).await {
-            Ok(clip) => {
-                dbg!(&clip);
-                Ok(Redirect::to(uri!(get_clip(clip.shortcode))))
-            }
+            Ok(clip) => Ok(Redirect::to(uri!(get_clip(clip.shortcode)))),
             Err(_) => Err((
                 Status::InternalServerError,
                 RawHtml(renderer.render(
@@ -79,6 +104,7 @@ pub async fn get_clip(
     shortcode: ShortCode,
     database: &State<AppDatabase>,
     renderer: &State<Renderer<'_>>,
+    hit_counter: &State<HitCounter>,
 ) -> Result<status::Custom<RawHtml<String>>, PageError> {
     fn render_with_status<T: ctx::PageContext + serde::Serialize + std::fmt::Debug>(
         status: Status,
@@ -93,6 +119,7 @@ pub async fn get_clip(
 
     match action::get_clip(shortcode.clone().into(), database.get_pool()).await {
         Ok(clip) => {
+            hit_counter.hit(shortcode.clone(), 1);
             let context = ctx::ClipView::new(clip);
             render_with_status(Status::Ok, context, renderer)
         }
@@ -151,6 +178,7 @@ pub async fn get_raw_clip(
     shortcode: ShortCode,
     database: &State<AppDatabase>,
     renderer: &State<Renderer<'_>>,
+    hit_counter: &State<HitCounter>,
 ) -> Result<status::Custom<String>, Status> {
     use crate::domain::clip::field::Password;
 
@@ -165,7 +193,10 @@ pub async fn get_raw_clip(
     };
 
     match action::get_clip(req, database.get_pool()).await {
-        Ok(clip) => Ok(status::Custom(Status::Ok, clip.content.into_inner())),
+        Ok(clip) => {
+            hit_counter.hit(shortcode.clone(), 1);
+            Ok(status::Custom(Status::Ok, clip.content.into_inner()))
+        }
         Err(e) => match e {
             ServiceError::PermissionError(_) => {
                 let context = ctx::ClipRequirePassword::new(shortcode);
@@ -180,11 +211,16 @@ pub async fn get_raw_clip(
     }
 }
 
-// #[rocket::get("/clip/raw/<shortcode>")]
-// pub async fn get_raw_clip() {}
-
 pub fn routes() -> Vec<rocket::Route> {
-    rocket::routes![home, get_clip, new_clip, submit_clip_password, get_raw_clip]
+    rocket::routes![
+        home,
+        get_clip,
+        new_clip,
+        submit_clip_password,
+        get_raw_clip,
+        api_key,
+        generate_api_key,
+    ]
 }
 
 pub mod catcher {
@@ -192,7 +228,7 @@ pub mod catcher {
     use rocket::{catch, catchers, Catcher};
 
     #[catch(default)]
-    fn default(req: &Request) -> &'static str {
+    fn default(_: &Request) -> &'static str {
         "something went wrong"
     }
 

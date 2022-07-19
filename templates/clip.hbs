@@ -17,11 +17,12 @@
         </div>
         <div class="column is-one-third">
           <div class="field">
-            <label for="expires" class="label">Expires</label>
-            <div class="control has-icons-left">
-              <input class="input" type="text" placeholder="Expires" name="expires" value="{{clip.expires}}" readonly>
-              <span class="icon is-left"><i class="fas fa-clock"></i></span>
-            </div>
+                <label for="expires_at" class="label">Expiration date</label>
+                <div class="control has-icons-left">
+                  <input class="input input-expires_at" type="text" placeholder="" name="expires_at" readonly
+                    value="{{clip.expires_at}}">
+                  <span class="icon is-left"><i class="fas fa-clock"></i></span>
+                </div>
           </div>
           <div class="field">
             <div class="level">

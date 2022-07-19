@@ -57,13 +57,19 @@ impl HitCounter {
             hits_vec
         };
         handle.block_on(async move {
-            let transaction = service::action::begin_transaction(&pool).await?;
-            for (shortcode, hits) in hits {
-                if let Err(e) = service::action::increase_hit_count(&shortcode, hits, &pool).await {
-                    eprintln!("error increasing hit count: {}", e);
+            if hits.len() > 0 {
+                let transaction = service::action::begin_transaction(&pool).await?;
+                for (shortcode, hits) in hits {
+                    if let Err(e) =
+                        service::action::increase_hit_count(&shortcode, hits, &pool).await
+                    {
+                        eprintln!("error increasing hit count: {}", e);
+                    }
                 }
+                Ok(service::action::end_transaction(transaction).await?)
+            } else {
+                Ok(())
             }
-            Ok(service::action::end_transaction(transaction).await?)
         })
     }
 
@@ -80,6 +86,7 @@ impl HitCounter {
                 let mut hit_count = hits.lock();
                 let hit_count = hit_count.entry(shortcode).or_insert(0);
                 *hit_count += count;
+                dbg!(hit_count);
             }
         }
         Ok(())

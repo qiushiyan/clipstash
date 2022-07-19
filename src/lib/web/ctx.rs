@@ -67,3 +67,48 @@ impl PageContext for ClipRequirePassword {
         "base"
     }
 }
+#[derive(Debug, Serialize)]
+pub struct ApiKeyGenerate {}
+
+impl Default for ApiKeyGenerate {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
+impl PageContext for ApiKeyGenerate {
+    fn title(&self) -> &str {
+        "Generate Api Key"
+    }
+
+    fn template_path(&self) -> &str {
+        "generate_api_key"
+    }
+
+    fn parent(&self) -> &str {
+        "base"
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ApiKey {}
+
+impl Default for ApiKey {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
+impl PageContext for ApiKey {
+    fn title(&self) -> &str {
+        "Api Key"
+    }
+
+    fn template_path(&self) -> &str {
+        "api_key"
+    }
+
+    fn parent(&self) -> &str {
+        "base"
+    }
+}

@@ -31,7 +31,7 @@ fn main() {
         hit_counter,
     };
 
-    rt.block_on(async move {
+    let _ = rt.block_on(async move {
         clipstash::rocket(config)
             .launch()
             .await
