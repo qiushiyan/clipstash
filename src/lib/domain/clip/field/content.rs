@@ -1,5 +1,5 @@
 use crate::domain::clip::ClipError;
-use rocket::form::{self, FromForm, FromFormField, ValueField};
+use rocket::form::{self, FromFormField, ValueField};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

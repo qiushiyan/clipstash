@@ -13,7 +13,7 @@ where
     let shortcode = m.shortcode.as_str();
     Ok(sqlx::query_as!(
         model::Clip,
-        r#" SELECT * FROM clips WHERE shortcode = ? "#,
+        r#" SELECT * FROM clips WHERE shortcode = ?"#,
         shortcode
     )
     .fetch_one(pool)
@@ -51,9 +51,7 @@ where
 {
     let m = m.into();
     let _ = sqlx::query!(
-        r#"
-        UPDATE clips SET title = ?, content = ?, password = ?, expires_at = ? WHERE shortcode = ?
-        "#,
+        r#"UPDATE clips SET title = ?, content = ?, password = ?, expires_at = ? WHERE shortcode = ?"#,
         m.title,
         m.content,
         m.password,

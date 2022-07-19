@@ -50,11 +50,11 @@ impl PageContext for ClipView {
 }
 
 #[derive(Debug, Serialize, Constructor)]
-pub struct PasswordRequiredView {
+pub struct ClipRequirePassword {
     shortcode: crate::ShortCode,
 }
 
-impl PageContext for PasswordRequiredView {
+impl PageContext for ClipRequirePassword {
     fn title(&self) -> &str {
         "Password required"
     }
