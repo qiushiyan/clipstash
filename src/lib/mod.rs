@@ -1,5 +1,6 @@
 pub mod data;
 pub mod domain;
+
 pub mod service;
 pub mod web;
 
@@ -27,4 +28,5 @@ pub fn rocket(config: RocketConfig) -> Rocket<Build> {
 pub struct RocketConfig {
     pub renderer: Renderer<'static>,
     pub database: AppDatabase,
+    pub hit_counter: HitCounter,
 }

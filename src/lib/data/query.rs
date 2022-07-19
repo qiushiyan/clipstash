@@ -62,3 +62,15 @@ where
     .await?;
     get_clip(m.shortcode, pool).await
 }
+
+pub async fn increment_hit(shortcode: &ShortCode, hits: i64, pool: &DatabasePool) -> Result<()> {
+    let shortcode = shortcode.as_str();
+    Ok(sqlx::query!(
+        r#"UPDATE clips SET hits = ? + 1 WHERE shortcode = ?"#,
+        hits,
+        shortcode
+    )
+    .execute(pool)
+    .await
+    .map(|_| ())?)
+}
