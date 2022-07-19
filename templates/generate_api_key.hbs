@@ -1,0 +1,55 @@
+{{#* inline "title"}}{{_title}}{{/inline}}
+{{#* inline "head"}}
+{{/inline}}
+
+{{#* inline "page"}}
+
+<section class="section">
+  <div class="container">
+     <form class="box" method="post" action="/key/new">
+          <div class="field">
+            <div class="level">
+              <div class="level-item has-text-centered">
+                <div class="control is-centered">
+                  <input type="submit" class="button is-link has-text-weight-bold" value="Generate API KEY">
+                </div>
+              </div>
+            </div>
+          </div>
+        {{#if api_key}}
+            <div class="field">
+              <div class="control has-icons-left">
+                  <input class="input" id="clip-content" type="text" placeholder="" name="" readonly value="{{api_key}}">
+                  <a class="copy-link is-link has-text-weight-bold">
+                    <span class="icon is-left copy-link"><i class="fas fa-clipboard"></i></span>
+                    Copy api key
+                  </a>
+              </div>
+            </div>
+        {{/if}}
+    </form>
+  </div>
+</section>
+
+<script>
+  window.onload = function () {
+    var clipContentEl = document.getElementById('clip-content');
+    clipContentEl.onclick = function () {
+      clipContentEl.select();
+    }
+    new ClipboardJS('.copy-link', {
+      text: function (trigger) {
+        console.log(clipContentEl);
+        return clipContentEl.value
+      }
+    });
+    tippy('.copy-link', {
+      content: 'Copied!',
+      trigger: 'click',
+      duration: [0, 1500],
+    });
+  }
+</script>
+
+{{/inline}}
+{{> (lookup this "_base")}}

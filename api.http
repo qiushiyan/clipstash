@@ -1,0 +1,17 @@
+### generate api key
+POST http://localhost:8000/key/new HTTP/1.1
+### create new clip
+POST http://localhost:8000/api/clip HTTP/1.1
+content-type: application/json
+x-api-key: 8mRnWXn97EqWRT6bLr9NZg==
+
+{
+    "title": "api title",
+    "content": "api content",
+    "password": "",
+    "expires_at": "2022-07-20T00:00:00Z"
+}
+
+###
+GET http://localhost:8000/api/clip/fc1c11c3f3 HTTP/1.1
+x-api-key: 8mRnWXn97EqWRT6bLr9NZg==

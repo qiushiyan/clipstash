@@ -18,6 +18,8 @@ pub async fn get_clip(req: ask::GetClip, pool: &DatabasePool) -> Result<Clip, Se
     let password = req.password.clone();
     let clip: Clip = query::get_clip(req, pool).await?.try_into()?;
     if clip.password.has_password() {
+        dbg!(&clip);
+        dbg!(&password);
         if clip.password == password {
             Ok(clip)
         } else {
